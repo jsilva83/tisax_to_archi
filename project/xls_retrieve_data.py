@@ -42,8 +42,8 @@ class XlsRetrieveData:
         objective_cell = self.xls_work_sheet_obj.cell(row=in_row, column=10).value
         must_cell = self.xls_work_sheet_obj.cell(row=in_row, column=11).value
         if len(isa_cell.split('.')) == 3 and must_cell is not None:
-            out_row.append(f'{isa_cell} {objective_cell}')
-            out_row.append(must_cell)
+            out_row.append(f'{isa_cell}. {objective_cell}')
+            out_row.append(must_cell.split('\n'))
         return out_row
 
     def save_xls_files(self):
@@ -56,5 +56,4 @@ if __name__ == '__main__':
                                        '5.0.4_EN_archimate.xlsx', 'Information Security', 5)
     for a_n in range(5, a_xls.last_row+1):
         a_row = a_xls.get_must_row(a_n)
-        a_requirements = [item for item in a_row[1].split('+') if item != '']
-        # TODO: split the sub-requirements.
+        print(a_row)
