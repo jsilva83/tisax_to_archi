@@ -30,6 +30,8 @@ def tisax_to_archi():
         a_row = a_xls.get_must_row(a_n)
         if len(a_row) > 0:
             objective = a_row[0]
+            # TODO: add the goal number to the requirement as: 1.1.1.1
+            objective_nr = objective.split(' ')[0]
             requirement = ''
             sub_requirement = ''
             for item in a_row[1]:
