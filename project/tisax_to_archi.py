@@ -19,6 +19,7 @@ def tisax_to_archi():
     a_xls = xls.XlsRetrieveData(in_column=4, in_workbook=TISAX_FILE_NAME, in_worksheet=TISAX_SHEET, in_first_row=5)
     for a_n in range(5, a_xls.last_row + 1):
         # Example:
+        # a_row =
         # ['1.1.1. The organization needs at least one information security policy. This reflects the importance and
         #          significance of information security and is adapted to the organization. Additional policies may be
         #          appropriate depending on the size and structure of the organization.',
@@ -29,24 +30,36 @@ def tisax_to_archi():
         # ]
         a_row = a_xls.get_must_row(a_n)
         if len(a_row) > 0:
+
             objective = a_row[0]
-            # TODO: add the goal number to the requirement as: 1.1.1.1
             objective_nr = objective.split(' ')[0]
             requirement = ''
-            sub_requirement = ''
+            requirement_nr = ''
+            index_r = 0
+            index_s = 0
+
             for item in a_row[1]:
-                item_list = item.split('+')
+
+                item_list = item.split('+')  # if '+' means it is a requirement.
                 if len(item_list) > 1:
-                    requirement = item_list[1].strip()
-                item_list = item.split('-')
+                    index_r += 1
+                    requirement_nr = f'{objective_nr}{index_r}'
+                    index_s = 0
+                    requirement = f'{requirement_nr}. {"".join(item_list[1:])}'
+
+                item_list = item.split('-')  # if '-' means it is a sub-requirement.
                 if len(item_list) > 1:
-                    sub_requirement = item_list[1].strip()
+                    index_s += 1
+                    sub_requirement = f'{requirement_nr}.{index_s}. {"".join(item_list[1:])}'
                 else:
                     sub_requirement = ''
+
+                # Create a new pandas data frame to add to the output data frame.
                 df_row_to_add = pd.DataFrame({'objective': [objective], 'must_requirement': [requirement],
                                               'sub-requirement': [sub_requirement]})
-                # Add a new row.
+                # Add a new row (concatenate 2 data frames).
                 df_data = pd.concat([df_data, df_row_to_add], ignore_index=True)
+
     # Write Excel file.
     df_data.to_excel(REQUIREMENTS_FILE, index=False)
     return
