@@ -8,13 +8,18 @@ import xls_retrieve_data as xls
 TISAX_FILE_NAME = 'C:/Users/jorge.silva/HUFGLOBAL/SGSI ISMS - ISMS Management - ISMS Management/I - TISAX Project/02 '\
                   '- Self assessment/05 - VDA 5_0_4 (05-01-2022)/VDA ISA 5.0.4_EN_archimate.xlsx'
 TISAX_SHEET = 'Information Security'
-REQUIREMENTS_FILE = 'C:/Users/jorge.silva/Downloads/tisax_requirements.xlsx'
+REQUIREMENTS_FILE = 'C:/Users/jorge.silva/Downloads/tisax_must_requirements.xlsx'
 
 
-def tisax_to_archi():
+def tisax_to_archi_must():
     # Create output dataframe.
     # Create an empty data frame.
-    df_data = pd.DataFrame(columns=['objective', 'must_requirement', 'sub-requirement'])
+    df_data = pd.DataFrame(columns=['objectives', 'groups', 'must_requirements', 'must_sub-requirements'])
+    df_objectives = pd.DataFrame(columns=['objectives'])
+    df_groups = pd.DataFrame(columns=['groups'])
+    df_must_reqs = pd.DataFrame(columns=['must_requirements'])
+    df_must_subs = pd.DataFrame(columns=['must_sub-requirements'])
+
     # Get must requirements from TISAX check list.
     a_xls = xls.XlsRetrieveData(in_column=4, in_workbook=TISAX_FILE_NAME, in_worksheet=TISAX_SHEET, in_first_row=5)
     for a_n in range(5, a_xls.last_row + 1):
@@ -28,42 +33,68 @@ def tisax_to_archi():
         #    "  - A policy has been created and approved by the organization's management.",
         #    '+ The policy includes objectives and the significance of information security within the organization.']
         # ]
+
         a_row = a_xls.get_must_row(a_n)
         if len(a_row) > 0:
 
             objective = a_row[0]
             objective_nr = objective.split(' ')[0]
+            group = f'{objective_nr} Must'
             requirement = ''
             requirement_nr = ''
             index_r = 0
             index_s = 0
 
+            # Add objective and group to specific dataframes to write in different Excel sheets.
+            df_obj = pd.DataFrame({'objectives': [objective]})
+            df_objectives = pd.concat([df_objectives, df_obj], ignore_index=True)
+            df_group = pd.DataFrame({'groups': [group]})
+            df_groups = pd.concat([df_groups, df_group], ignore_index=True)
+
             for item in a_row[1]:
 
                 item_list = item.split('+')  # if '+' means it is a requirement.
                 if len(item_list) > 1:
+
                     index_r += 1
                     requirement_nr = f'{objective_nr}{index_r}'
                     index_s = 0
                     requirement = f'{requirement_nr}. {"".join(item_list[1:])}'
 
+                    # Add requirement to dataframe to write in a different Excel sheet.
+                    df_req = pd.DataFrame({'must_requirements': [requirement]})
+                    df_must_reqs = pd.concat([df_must_reqs, df_req], ignore_index=True)
+
                 item_list = item.split('-')  # if '-' means it is a sub-requirement.
                 if len(item_list) > 1:
+
                     index_s += 1
                     sub_requirement = f'{requirement_nr}.{index_s}. {"".join(item_list[1:])}'
+
+                    # Add sub-requirement to dataframe to write in a different Excel sheet.
+                    df_sub_req = pd.DataFrame({'must_sub-requirements': [sub_requirement]})
+                    df_must_subs = pd.concat([df_must_subs, df_sub_req], ignore_index=True)
+
                 else:
                     sub_requirement = ''
 
                 # Create a new pandas data frame to add to the output data frame.
-                df_row_to_add = pd.DataFrame({'objective': [objective], 'must_requirement': [requirement],
-                                              'sub-requirement': [sub_requirement]})
+                df_row_to_add = pd.DataFrame({'objectives': [objective], 'groups': [group],
+                                              'must_requirements': [requirement],
+                                              'must_sub-requirements': [sub_requirement]})
                 # Add a new row (concatenate 2 data frames).
                 df_data = pd.concat([df_data, df_row_to_add], ignore_index=True)
 
-    # Write Excel file.
-    df_data.to_excel(REQUIREMENTS_FILE, index=False)
+    # Write Excel files.
+    a_excel_to_write = pd.ExcelWriter(REQUIREMENTS_FILE)
+    df_data.to_excel(a_excel_to_write, sheet_name='all_requirements', index=False)
+    df_objectives.to_excel(a_excel_to_write, sheet_name='objectives', index=False)
+    df_groups.to_excel(a_excel_to_write, sheet_name='groups', index=False)
+    df_must_reqs.to_excel(a_excel_to_write, sheet_name='must_requirements', index=False)
+    df_must_subs.to_excel(a_excel_to_write, sheet_name='must_sub-requirements', index=False)
+    a_excel_to_write.save()
     return
 
 
 if __name__ == '__main__':
-    tisax_to_archi()
+    tisax_to_archi_must()

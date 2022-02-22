@@ -46,6 +46,26 @@ class XlsRetrieveData:
             out_row.append(must_cell.split('\n'))
         return out_row
 
+    def get_should_row(self, in_row):
+        out_row = []
+        isa_cell = self.xls_work_sheet_obj.cell(row=in_row, column=4).value
+        objective_cell = self.xls_work_sheet_obj.cell(row=in_row, column=10).value
+        should_cell = self.xls_work_sheet_obj.cell(row=in_row, column=12).value
+        if len(isa_cell.split('.')) == 3 and should_cell is not None:
+            out_row.append(f'{isa_cell}. {objective_cell}')
+            out_row.append(should_cell.split('\n'))
+        return out_row
+
+    def get_high_row(self, in_row):
+        out_row = []
+        isa_cell = self.xls_work_sheet_obj.cell(row=in_row, column=4).value
+        objective_cell = self.xls_work_sheet_obj.cell(row=in_row, column=10).value
+        high_cell = self.xls_work_sheet_obj.cell(row=in_row, column=13).value
+        if len(isa_cell.split('.')) == 3 and high_cell is not None:
+            out_row.append(f'{isa_cell}. {objective_cell}')
+            out_row.append(high_cell.split('\n'))
+        return out_row
+
     def save_xls_files(self):
         return
 
