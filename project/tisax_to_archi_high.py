@@ -67,6 +67,10 @@ def tisax_to_archi_high():
                     df_req = pd.DataFrame({'high_requirements': [requirement]})
                     df_high_reqs = pd.concat([df_high_reqs, df_req], ignore_index=True)
 
+                # TODO: When the line has a "+" at the beginning it should jump to the next item or line of
+                # the row and not to check if there is a "-". In the case the requirement has a work like
+                # "re-submit" the "submit" part will be added has a sub-requirement.
+
                 item_list = item.split('-')  # if '-' means it is a sub-requirement.
                 if len(item_list) > 1:
 
