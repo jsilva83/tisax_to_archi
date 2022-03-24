@@ -22,6 +22,7 @@ def tisax_to_archi_must():
 
     # Get must requirements from TISAX check list.
     a_xls = xls.XlsRetrieveData(in_column=4, in_workbook=TISAX_FILE_NAME, in_worksheet=TISAX_SHEET, in_first_row=5)
+
     for a_n in range(5, a_xls.last_row + 1):
         # Example:
         # a_row =
